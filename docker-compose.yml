@@ -1,0 +1,39 @@
+services:
+  api:
+    container_name: clinical-trials-api
+    image: clinical-trials-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=db;Database=ClinicalTrialsDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
+    networks:
+      - clinical-trials-network
+
+  db:
+    container_name: clinical-trials-db
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Passw0rd
+      - MSSQL_PID=Express
+    volumes:
+      - sqldata:/var/opt/mssql
+    networks:
+      - clinical-trials-network
+
+volumes:
+  sqldata:
+    driver: local
+
+networks:
+  clinical-trials-network:
+    driver: bridge 
