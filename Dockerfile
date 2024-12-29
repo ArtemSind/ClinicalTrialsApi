@@ -11,10 +11,10 @@ COPY ["ClinicalTrialsApi.Infrastructure/ClinicalTrialsApi.Infrastructure.csproj"
 RUN dotnet restore "ClinicalTrialsApi.Api/ClinicalTrialsApi.Api.csproj"
 COPY . .
 WORKDIR "/src/ClinicalTrialsApi.Api"
-RUN dotnet build "ClinicalTrialsApi.Api.csproj" -c Release -o /app/build
+RUN dotnet build "ClinicalTrialsApi.Api.csproj" -c Debug -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "ClinicalTrialsApi.Api.csproj" -c Release -o /app/publish
+RUN dotnet publish "ClinicalTrialsApi.Api.csproj" -c Debug -o /app/publish
 
 FROM base AS final
 WORKDIR /app

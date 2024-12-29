@@ -4,76 +4,74 @@ A .NET 8 RESTful API for uploading and processing JSON metadata files related to
 
 ## Features
 
-- File upload with size and type validation
+- File upload with size and type validation (max 1MB)
 - JSON schema validation
 - Data transformation and normalization
-- SQL Server database storage
+- SQL Server database storage with automatic creation
 - Swagger/OpenAPI documentation
-- Docker support
-- Unit tests
+- Docker and Docker Compose support
+- Comprehensive unit tests
+- Clean Architecture implementation
 
 ## Prerequisites
 
 - .NET 8 SDK
-- SQL Server (LocalDB or full instance)
-- Docker and Docker Compose (optional)
+- Docker and Docker Compose
+- Visual Studio 2022 (optional, for debugging)
 
 ## Getting Started
 
-1. Clone the repository
-2. Update the connection string in `ClinicalTrialsApi.Api/appsettings.json` if needed
-3. Run the following commands from the solution directory:
+### Using Docker Compose (Recommended)
 
+1. Clone the repository
+2. Run the application using Docker Compose:
+```bash
+docker-compose up -d
+```
+
+The API will be available at:
+- API: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger
+- SQL Server: localhost:1433
+
+### Local Development
+
+1. Clone the repository
+2. Update the connection string in `ClinicalTrialsApi.Api/appsettings.Development.json` if needed
+3. Run the following commands:
 ```bash
 dotnet restore
 dotnet build
 dotnet run --project ClinicalTrialsApi.Api
 ```
 
-The API will be available at:
-- HTTP: http://localhost:5000
-- HTTPS: https://localhost:5001
-
-## Docker Support
-
-### Using Docker Compose (Recommended)
-
-The easiest way to run the application is using Docker Compose, which will set up both the API and SQL Server:
-
-```bash
-docker-compose up -d
-```
-
-The API will be available at:
-- HTTP: http://localhost:8080
-- HTTPS: http://localhost:8081
-
-SQL Server will be available at:
-- Host: localhost
-- Port: 1433
-- User: sa
-- Password: YourStrong!Passw0rd
-
-### Using Docker Only
-
-To build and run only the API container:
-
-```bash
-docker build -t clinical-trials-api .
-docker run -p 8080:80 clinical-trials-api
-```
-
 ## API Endpoints
 
-- POST /api/clinicaltrials/upload - Upload JSON file
-- GET /api/clinicaltrials/{id} - Get trial by ID
-- GET /api/clinicaltrials/trial/{trialId} - Get trial by trial ID
-- GET /api/clinicaltrials?status={status} - Get all trials with optional status filter
+### Upload Trial
+```http
+POST /api/clinicaltrials/upload
+Content-Type: multipart/form-data
+```
+
+### Get Trial by ID
+```http
+GET /api/clinicaltrials/{id}
+```
+
+### Get Trial by Trial ID
+```http
+GET /api/clinicaltrials/trial/{trialId}
+```
+
+### Get All Trials (with optional status filter)
+```http
+GET /api/clinicaltrials?status={status}
+```
+Status can be: "NotStarted", "Ongoing", "Completed"
 
 ## JSON Schema
 
 The API accepts JSON files following this schema:
-
 ```json
 {
   "trialId": "string",
@@ -85,15 +83,47 @@ The API accepts JSON files following this schema:
 }
 ```
 
-Required fields: trialId, title, startDate, status
+Required fields:
+- trialId
+- title
+- startDate
+- status
 
-## Running Tests
+## Business Rules
 
+1. Duration in days is automatically calculated when endDate is provided
+2. For "Ongoing" trials without an endDate, it's set to one month from startDate
+
+## Development
+
+### Project Structure
+- `ClinicalTrialsApi.Api` - API controllers and configuration
+- `ClinicalTrialsApi.Core` - Domain models and interfaces
+- `ClinicalTrialsApi.Infrastructure` - Implementation of services and repositories
+- `ClinicalTrialsApi.Tests` - Unit tests
+
+### Running Tests
 ```bash
 dotnet test
 ```
 
-## Business Rules
+### Debugging with Visual Studio
+1. Set the docker-compose project as the startup project
+2. Press F5 to start debugging
+3. The application will build and start in Docker with debugger attached
 
-1. Duration is automatically calculated when endDate is provided
-2. For "Ongoing" trials without an endDate, it's set to one month from startDate 
+## Database
+
+The database is automatically created on first run. It uses:
+- SQL Server 2022
+- Entity Framework Core for data access
+- Automatic migrations
+- Retry policies for reliability
+
+## Docker Support
+
+The solution includes:
+- Multi-stage Dockerfile for optimized images
+- Docker Compose configuration for both API and SQL Server
+- Volume mapping for database persistence
+- Network configuration for service communication 

@@ -7,6 +7,7 @@ using ClinicalTrialsApi.Core.Interfaces;
 using ClinicalTrialsApi.Core.Models;
 using System.IO;
 using System.Text;
+using ClinicalTrialsApi.Core.Enums;
 
 namespace ClinicalTrialsApi.Api.Controllers
 {
@@ -80,7 +81,7 @@ namespace ClinicalTrialsApi.Api.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<ClinicalTrial>>> GetTrials([FromQuery] string status = null)
+        public async Task<ActionResult<IEnumerable<ClinicalTrial>>> GetTrials([FromQuery] ClinicalTrialStatusEnum? status = null)
         {
             var trials = await _trialService.GetTrialsAsync(status);
             return Ok(trials);

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using ClinicalTrialsApi.Core.Interfaces;
 using ClinicalTrialsApi.Core.Models;
 using ClinicalTrialsApi.Infrastructure.Data;
+using ClinicalTrialsApi.Core.Enums;
 
 namespace ClinicalTrialsApi.Infrastructure.Repositories
 {
@@ -18,22 +19,22 @@ namespace ClinicalTrialsApi.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<ClinicalTrial> GetByIdAsync(int id)
+        public async Task<ClinicalTrial?> GetByIdAsync(int id)
         {
             return await _context.ClinicalTrials.FindAsync(id);
         }
 
-        public async Task<ClinicalTrial> GetByTrialIdAsync(string trialId)
+        public async Task<ClinicalTrial?> GetByTrialIdAsync(string trialId)
         {
             return await _context.ClinicalTrials
-                .FirstOrDefaultAsync(x => x.TrialId == trialId);
+            .FirstOrDefaultAsync(x => x.TrialId == trialId);
         }
 
-        public async Task<IEnumerable<ClinicalTrial>> GetAllAsync(string status = null)
+        public async Task<IEnumerable<ClinicalTrial>> GetAllAsync(ClinicalTrialStatusEnum? status = null)
         {
             var query = _context.ClinicalTrials.AsQueryable();
-            
-            if (!string.IsNullOrWhiteSpace(status))
+
+            if (status != null)
             {
                 query = query.Where(x => x.Status == status);
             }
@@ -68,4 +69,4 @@ namespace ClinicalTrialsApi.Infrastructure.Repositories
             return true;
         }
     }
-} 
+}
